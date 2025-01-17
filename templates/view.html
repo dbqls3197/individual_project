@@ -1,0 +1,24 @@
+<!-- templates/view.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>명함 보기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">{{ post.title }}</h1>
+        <p><strong>내용:</strong> {{ post.content }}</p>
+        <p><strong>첨부파일:</strong> 
+            {% if post.filename %}
+            <a href="{{ url_for('static', filename='uploads/' + post.filename) }}" target="_blank">파일 보기</a>
+            {% else %}
+            없음
+            {% endif %}
+        </p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">목록으로 돌아가기</a>
+    </div>
+</body>
+</html>

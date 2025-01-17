@@ -1,0 +1,46 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>명함 목록</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">전자 명함 목록</h1>
+        <a href="{{ url_for('add_post') }}" class="btn btn-primary mb-3">명함 추가</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>제목</th>
+                    <th>내용</th>
+                    <th>첨부파일</th>
+                    <th>작업</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.content }}</td>
+                    <td>
+                        {% if post.filename %}
+                        <a href="{{ url_for('static', filename='uploads/' + post.filename) }}" target="_blank">파일 보기</a>
+                        {% else %}
+                        없음
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_post', id=post.id) }}" class="btn btn-info btn-sm">보기</a>
+                        <a href="{{ url_for('edit_post', id=post.id) }}" class="btn btn-warning btn-sm">수정</a>
+                        <a href="{{ url_for('delete_post', id=post.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
