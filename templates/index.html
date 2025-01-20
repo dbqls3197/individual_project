@@ -1,46 +1,52 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>명함 목록</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>디지털 명함</title>
+    <link rel="stylesheet" href="styles.css"> <!-- 스타일시트를 추가할 수 있습니다 -->
 </head>
 <body>
-    <div class="container">
-        <h1 class="my-4">전자 명함 목록</h1>
-        <a href="{{ url_for('add_post') }}" class="btn btn-primary mb-3">명함 추가</a>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>제목</th>
-                    <th>내용</th>
-                    <th>첨부파일</th>
-                    <th>작업</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for post in posts %}
-                <tr>
-                    <td>{{ post.title }}</td>
-                    <td>{{ post.content }}</td>
-                    <td>
-                        {% if post.filename %}
-                        <a href="{{ url_for('static', filename='uploads/' + post.filename) }}" target="_blank">파일 보기</a>
-                        {% else %}
-                        없음
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ url_for('view_post', id=post.id) }}" class="btn btn-info btn-sm">보기</a>
-                        <a href="{{ url_for('edit_post', id=post.id) }}" class="btn btn-warning btn-sm">수정</a>
-                        <a href="{{ url_for('delete_post', id=post.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <header>
+        <h1>디지털 명함 시스템</h1>
+        <nav>
+            <ul>
+                {% if session.get('userid') %}
+                <li><a href="/logout">로그아웃</a></li>
+            {% else %}
+                <li><a href="/login">로그인</a></li>
+                <li><a href="/register">회원가입</a></li>
+            {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="welcome">
+            <h2>환영합니다!</h2>
+            <p>로그인 후 자신의 명함을 추가하고 관리하세요.</p>
+        </section>
+
+        <section id="features">
+            <h3>주요 기능</h3>
+            <ul>
+                <li><a href="/post/add">자기 명함 추가</a></li>
+                <li><a href="/view">내 명함 확인</a></li>
+                <li><a href="/edit">명함 수정</a></li>
+                <li><a href="/storage_box">받은 명함</a></li>
+                <li><a href="/give">명함 보내기</a></li>
+            </ul>
+        </section>
+
+        <section id="contact-info">
+            <h3>문의사항</h3>
+            <p>문의사항은 게시판을 통해 남겨주세요.</p>
+            <a href="/contact">게시판</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 디지털 명함 시스템</p>
+    </footer>
 </body>
 </html>
