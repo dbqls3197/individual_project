@@ -4,7 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>디지털 명함</title>
-    <link rel="stylesheet" href="styles.css"> <!-- 스타일시트를 추가할 수 있습니다 -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .edit-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .edit-dropdown {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            padding: 8px 0;
+        }
+        
+        .edit-dropdown.show {
+            display: block;
+        }
+        
+        .edit-dropdown a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .edit-dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -13,10 +45,10 @@
             <ul>
                 {% if session.get('userid') %}
                 <li><a href="/logout">로그아웃</a></li>
-            {% else %}
+                {% else %}
                 <li><a href="/login">로그인</a></li>
                 <li><a href="/register">회원가입</a></li>
-            {% endif %}
+                {% endif %}
             </ul>
         </nav>
     </header>
@@ -26,15 +58,13 @@
             <h2>환영합니다!</h2>
             <p>로그인 후 자신의 명함을 추가하고 관리하세요.</p>
         </section>
-
         <section id="features">
             <h3>주요 기능</h3>
             <ul>
                 <li><a href="/post/add">자기 명함 추가</a></li>
                 <li><a href="/view">내 명함 확인</a></li>
-                <li><a href="/edit">명함 수정</a></li>
-                <li><a href="/storage_box">받은 명함</a></li>
-                <li><a href="/give">명함 보내기</a></li>
+                <li><a href="/received">받은 명함</a></li>
+                <li><a href="/give_card">명함 보내기</a></li>
             </ul>
         </section>
 

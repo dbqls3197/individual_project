@@ -16,10 +16,13 @@ app.secret_key = '1234'
 # DB 연결 및 매니저 설정
 manager = DBManager()
 
-# 목록보기 
+
 @app.route('/')
 def index():
-    posts = manager.get_all_posts()  
+    if 'userid' not in session:
+        return redirect('/login')
+    user_id = session.get('userid')
+    posts = manager.get_user_posts(user_id)  # 사용자의 모든 명함 가져오기
     return render_template('index.html', posts=posts)
 
 
@@ -29,9 +32,10 @@ def register():
     if request.method == "POST":
         userid = request.form['userid']
         username = request.form['username']
-        password = request.form['password']
+        name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
+        password = request.form['password']
         confirm_password = request.form['confirm_password']
 
         if password != confirm_password:
@@ -45,7 +49,7 @@ def register():
         else:
             filename = None  
 
-        success, message = manager.register_user(userid, password, email, username, phone, filename)
+        success, message = manager.register_user(userid, username, name, password, email, phone, filename)
         if success:
             flash(message, "success")
             return redirect(url_for('login'))
@@ -110,19 +114,26 @@ def add_post():
 # 내 명함 내용보기
 @app.route('/view')
 def view_posts():
-    user_id = session.get('userid')  # 세션에서 로그인한 유저 ID 가져오기
-    posts = manager.get_all_posts_user(user_id)  # 유저의 명함만 가져오기
+    user_id = session.get('userid')  
+    posts = manager.get_all_posts_user(user_id) 
     if not posts:
-        print("명함이 없습니다.")  # 디버깅용 로그
+        print("명함이 없습니다.")  
     
     return render_template('view.html', posts=posts)
 
 
-
 # 명함 수정
-@app.route('/post/edit/<int:id>', methods=["GET", "POST"])
+@app.route('/edit/<int:id>', methods=["GET", "POST"])
 def edit_post(id):
-    post = manager.get_post_by_id(id)
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    user_id = session.get('userid')
+    post = manager.get_post_by_id(id, user_id)
+    
+    if post is None:
+        return "명함을 찾을 수 없습니다.", 404
+    
     if request.method == "POST":
         name = request.form['name']
         company_name = request.form['company_name']
@@ -132,32 +143,64 @@ def edit_post(id):
         email = request.form['email']
         file = request.files['file']
         filename = file.filename if file else None
-
+        
         if filename:
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
+        
         if manager.update_post(id, name, company_name, department, position, phone, email, filename):
             return redirect('/')
         return '명함 수정 실패', 400
+        
     return render_template('edit.html', post=post)
-
+    
 # 명함 삭제
-@app.route('/post/delete/<int:id>')
+@app.route('/delete/<int:id>', methods=['GET'])
 def delete_post(id):
-    if manager.delete_post(id):
-        return redirect(url_for('index'))
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    user_id = session.get('userid')
+    if manager.delete_post(id, user_id):
+        flash('명함이 삭제되었습니다.')
+        return redirect('/view')
     return '명함 삭제 실패', 400
 
-# 명함 전달 기능 (받은 명함 목록)
-@app.route('/post/give/<int:id>', methods=["GET", "POST"])
-def give_post(id):
-    if request.method == "POST":
-        recipient_id = request.form['recipient_id']  # 받은 사람의 ID
-        if manager.give_post(id, recipient_id):
-            return redirect('/')
-        return '명함 전달 실패', 400
-    post = manager.get_post_by_id(id)
-    return render_template('give.html', post=post)
+# 받은 명함 조회
+@app.route('/received')
+def received_posts():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['userid']
+    posts = manager.get_received_posts(user_id)  
+    return render_template('storage_box.html', posts=posts)
+
+# 준 명함
+@app.route('/give_card', methods=['GET', 'POST'])
+def give_card():
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    if request.method == 'POST':
+        card_id = request.form['card_id']
+        to_username = request.form['to_username']
+        print(f"Attempting to give card {card_id} to {to_username}")  # 디버깅 출력
+        success, message = manager.give_card(card_id, session['userid'], to_username)
+        
+        print(f"Result: success={success}, message={message}")  # 디버깅 출력
+        
+        if success:
+            flash(message, 'success')
+        else:
+            flash(message, 'error')
+        return redirect(url_for('give_card'))  # 같은 페이지로 리다이렉트
+    
+    return render_template('give_card.html')
+
+
+
+
+
 
 
 if __name__ == '__main__':

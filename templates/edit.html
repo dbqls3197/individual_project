@@ -19,35 +19,35 @@
     <div class="container mt-4">
         <h2 class="text-center">명함 수정</h2>
 
-        <form method="POST" action="/edit-card/{{ card['id'] }}" enctype="multipart/form-data">
+        <form method="POST" action="/edit/{{ post['id'] }}" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">이름</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ card['name'] }}" required>
+                <input type="text" class="form-control" id="name" name="name" value="{{ post['name'] }}" required>
             </div>
 
             <div class="mb-3">
                 <label for="company_name" class="form-label">회사 이름</label>
-                <input type="text" class="form-control" id="company_name" name="company_name" value="{{ card['company_name'] }}" required>
+                <input type="text" class="form-control" id="company_name" name="company_name" value="{{ post['company_name'] }}" required>
             </div>
 
             <div class="mb-3">
                 <label for="department" class="form-label">부서</label>
-                <input type="text" class="form-control" id="department" name="department" value="{{ card['department'] }}" required>
+                <input type="text" class="form-control" id="department" name="department" value="{{ post['department'] }}" required>
             </div>
 
             <div class="mb-3">
                 <label for="position" class="form-label">직급</label>
-                <input type="text" class="form-control" id="position" name="position" value="{{ card['position'] }}" required>
+                <input type="text" class="form-control" id="position" name="position" value="{{ post['position'] }}" required>
             </div>
 
             <div class="mb-3">
-                <label for="phone" class="form-label">폰번호</label>
-                <input type="text" class="form-control" id="phone" name="phone" value="{{ card['phone'] }}" required>
+                <label for="phone" class="form-label">핸드폰번호</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ post['phone'] }}" required>
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">이메일</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ card['email'] }}" required>
+                <input type="email" class="form-control" id="email" name="email" value="{{ post['email'] }}" required>
             </div>
 
             <div class="mb-3">
@@ -59,7 +59,7 @@
         </form>
 
         <div class="text-center mt-3">
-            <a href="/my-card">내 명함 보기</a>
+            <a href="/view">내 명함 보기</a>
         </div>
     </div>
 
