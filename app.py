@@ -71,7 +71,6 @@ def login():
         
         if success:
             session['userid'] = userid  
-            flash("로그인 성공!", "success")
             return redirect(url_for('index'))
         else:
             flash(message, "danger")  
@@ -106,8 +105,12 @@ def add_post():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         if manager.insert_post(user_id, name, company_name, department, position, phone, email, filename):
-            return redirect('/')
-        return '명함 추가 실패', 400
+            flash('명함이 성공적으로 추가되었습니다!', 'success')  
+            return redirect('/') 
+        else:
+            flash('명함 추가 실패', 'danger') 
+            return redirect(url_for('add_post'))
+
     return render_template('add.html')
 
 
@@ -153,7 +156,7 @@ def edit_post(id):
         
     return render_template('edit.html', post=post)
     
-# 명함 삭제
+# 내 명함 삭제
 @app.route('/delete/<int:id>', methods=['GET'])
 def delete_post(id):
     if 'userid' not in session:
@@ -161,7 +164,7 @@ def delete_post(id):
     
     user_id = session.get('userid')
     if manager.delete_post(id, user_id):
-        flash('명함이 삭제되었습니다.')
+        flash('명함이 삭제되었습니다.','success')
         return redirect('/view')
     return '명함 삭제 실패', 400
 
@@ -175,15 +178,32 @@ def received_posts():
     posts = manager.get_received_posts(user_id)  
     return render_template('storage_box.html', posts=posts)
 
-# 준 명함
+    
+# 받은 명함 삭제
+@app.route('/delete_received/<int:id>', methods=['GET'])
+def delete_received_post(id):
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    user_id = session.get('userid')
+    if manager.delete_received_post(id, user_id):
+        
+        return redirect('/received')
+    return '받은 명함 삭제 실패', 400
+
+# 명함 보내기
 @app.route('/give_card', methods=['GET', 'POST'])
 def give_card():
     if 'userid' not in session:
         return redirect('/login')
     
+    # 사용자의 명함 목록을 가져옴
+    user_cards = manager.get_user_cards(session['userid'])
+    
     if request.method == 'POST':
         card_id = request.form['card_id']
         to_username = request.form['to_username']
+        
         print(f"Attempting to give card {card_id} to {to_username}")  # 디버깅 출력
         success, message = manager.give_card(card_id, session['userid'], to_username)
         
@@ -193,9 +213,10 @@ def give_card():
             flash(message, 'success')
         else:
             flash(message, 'error')
-        return redirect(url_for('give_card'))  # 같은 페이지로 리다이렉트
-    
-    return render_template('give_card.html')
+        return redirect(url_for('give_card'))
+
+    # GET 요청일 때 명함 목록과 함께 템플릿 렌더링
+    return render_template('give_card.html', cards=user_cards)
 
 
 

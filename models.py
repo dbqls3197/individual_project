@@ -230,19 +230,39 @@ class DBManager:
         finally:
             self.disconnect()
 
+    def delete_received_post(self, id, user_id):
+        self.connect()
+        try:
+            # 받은 명함 테이블에서 삭제
+            query = "DELETE FROM business_cards WHERE id = %s AND user_id = %s"
+            self.cursor.execute(query, (id, user_id))
+            
+            if self.cursor.rowcount == 0:
+                return False
+            
+            self.connection.commit()
+            return True
+        
+        except Error as e:
+            print(f"받은 명함 삭제 실패: {e}")
+            return False
+        finally:
+            self.disconnect()
+
+
 
     def give_card(self, post_id, from_user_id, to_username):
         self.connect()
         try:
-            # 받는 사람의 user_id 조회
-            query = "SELECT id FROM users WHERE username = %s"
+            # 받는 사람의 userid 조회 (컬럼명 주의!)
+            query = "SELECT userid FROM users WHERE username = %s"  # userid로 변경
             self.cursor.execute(query, (to_username,))
             recipient = self.cursor.fetchone()
             
             if not recipient:
                 return False, f"'{to_username}' 닉네임을 가진 사용자를 찾을 수 없습니다."
             
-            to_user_id = recipient['id']
+            to_user_id = recipient['userid']  # userid로 변경
             
             # 명함 정보 조회
             query = """
@@ -257,15 +277,17 @@ class DBManager:
             
             # 명함을 받은 사람의 보관함에 저장
             query = """
-                INSERT INTO business_cards 
-                (user_id, name, company_name, department, position, phone, 
-                email, filename, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
-                """
-            values = (to_user_id, card['name'], card['company_name'], 
+            INSERT INTO business_cards 
+            (user_id, name, company_name, department, position, phone,
+            email, filename, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            """
+            values = (to_user_id, card['name'], card['company_name'],
                     card['department'], card['position'], card['phone'],
                     card['email'], card['filename'])
-                    
+            
+            print(f"Debug - Inserting with values: {values}")  # 디버깅용
+            
             self.cursor.execute(query, values)
             self.connection.commit()
             
@@ -275,6 +297,15 @@ class DBManager:
             print(f"명함 전달 실패: {e}")
             self.connection.rollback()
             return False, f"명함 전달에 실패했습니다: {str(e)}"
+        finally:
+            self.disconnect()
+
+    def get_user_cards(self, user_id):
+        self.connect()
+        try:
+            query = "SELECT * FROM my_business_cards WHERE user_id = %s"
+            self.cursor.execute(query, (user_id,))
+            return self.cursor.fetchall()
         finally:
             self.disconnect()
 
