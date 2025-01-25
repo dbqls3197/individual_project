@@ -9,13 +9,13 @@ class DBManager:
         self.cursor = None
 
 
-    # DB에 연결
+# DB에 연결
     def connect(self):
         if self.connection and self.connection.is_connected():
             return
         try:
             self.connection = mysql.connector.connect(
-                host='10.0.66.11',
+                host='10.0.66.16',
                 user='dbqls',
                 password='1234',
                 database='business_cards'
@@ -27,18 +27,18 @@ class DBManager:
             self.cursor = None
 
 
-    # 데이터베이스 연결 종료
+# 데이터베이스 연결 종료
     def disconnect(self):
         if self.connection and self.connection.is_connected():
             self.cursor.close()
             self.connection.close()
 
 
-    # 비밀번호 암호화
+# 비밀번호 암호화
     def hash_password(self, password):
         return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-    # 회원 가입
+# 회원 가입
     def register_user(self, userid, username, name, password, email, phone, profile_picture):
         self.connect()
         try:
@@ -81,7 +81,7 @@ class DBManager:
 
 
 
-    # 로그인
+# 로그인
     def login_user(self, userid, password):
         self.connect()
         try:
@@ -107,7 +107,7 @@ class DBManager:
             self.disconnect()
 
 
-    # 명함 추가
+# 명함 추가
     def insert_post(self, user_id, name, company_name, department, position, phone, email, filename):
         self.connect()
         try:
@@ -127,7 +127,7 @@ class DBManager:
             self.disconnect()
 
 
-    # 내 명함 가져오기
+# 내 명함 가져오기
     def get_all_posts_user(self, user_id):
         self.connect()
         try:
@@ -145,7 +145,7 @@ class DBManager:
             self.disconnect()
 
 
-    # 내 명함 수정
+# 내 명함 수정
     def update_post(self, post_id, name, company_name, department, position, phone, email, filename):
         self.connect()
         try:
@@ -195,7 +195,7 @@ class DBManager:
             self.disconnect()
 
 
-    # 내명함 삭제
+# 내명함 삭제
     def delete_post(self, post_id, user_id):
         self.connect()
         try:
@@ -310,3 +310,66 @@ class DBManager:
             self.disconnect()
 
 
+    def insert_board_post(self, user_id, title, content, filename=None):
+        self.connect()
+        try:
+            query = """
+            INSERT INTO board_posts 
+            (user_id, title, content, filename, created_at, updated_at) 
+            VALUES (%s, %s, %s, %s, NOW(), NOW())
+            """
+            values = (user_id, title, content, filename)
+            self.cursor.execute(query, values)
+            self.connection.commit()
+            return True
+        except Error as e:
+            print(f"게시글 작성 실패: {e}")
+            return False
+        finally:
+            self.disconnect()
+
+    def get_board_posts(self, page=1, per_page=10):
+        self.connect()
+        try:
+            offset = (page - 1) * per_page
+            query = """
+            SELECT bp.*, u.username 
+            FROM board_posts bp 
+            JOIN users u ON bp.user_id = u.userid 
+            ORDER BY bp.created_at DESC 
+            LIMIT %s OFFSET %s
+            """
+            self.cursor.execute(query, (per_page, offset))
+            return self.cursor.fetchall()
+        finally:
+            self.disconnect()
+
+# 게시글 조회
+    def get_post(self, id):
+        try:
+            self.connect()
+            sql = "SELECT * FROM board_posts WHERE id = %s"
+            value = (id,)  
+            self.cursor.execute(sql, value)
+            return self.cursor.fetchone()
+        except mysql.connector.Error as error:
+            print(f" Post 조회 실패: {error}")
+            return None
+        finally:
+            self.disconnect()
+
+# 조회수증가
+    def update_views(self, id):
+        try:
+            self.connect()
+            sql = "UPDATE board_posts  SET views = views + 1 WHERE id = %s"
+            value = (id,)
+            self.cursor.execute(sql, value)
+            self.connection.commit()
+            return True
+        except mysql.connector.Error as error:
+            self.connection.rollback()
+            print(f"조회수 증가 실패: {error}")
+            return False
+        finally:
+            self.disconnect()

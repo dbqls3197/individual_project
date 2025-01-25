@@ -218,11 +218,48 @@ def give_card():
     # GET 요청일 때 명함 목록과 함께 템플릿 렌더링
     return render_template('give_card.html', cards=user_cards)
 
+# 게시판 목록
+@app.route('/board')
+def board_list():
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    page = request.args.get('page', 1, type=int)
+    posts = manager.get_board_posts(page)
+    return render_template('board.html', posts=posts)
 
+# 게시글 작성
+@app.route('/board/write', methods=['GET', 'POST'])
+def board_write():
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    if request.method == 'POST':
+        user_id = session['userid']
+        title = request.form['title']
+        content = request.form['content']
+        file = request.files.get('file')
+        filename = file.filename if file else None
+        
+        if filename:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        if manager.insert_board_post(user_id, title, content, filename):
+            flash('게시글이 성공적으로 작성되었습니다.', 'success')
+            return redirect(url_for('board_list'))
+        else:
+            flash('게시글 작성에 실패했습니다.', 'danger')
+    
+    return render_template('board_write.html')
 
-
-
+# 게시글 내용보기
+@app.route('/board/view/<int:id>')
+def board_view_post(id):
+    manager.update_views(id)
+    post = manager.get_post(id)
+    return render_template('borad_view.html',post=post)
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+    
