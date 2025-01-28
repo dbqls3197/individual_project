@@ -3,6 +3,7 @@ import os
 import mysql.connector
 from datetime import datetime
 from models import DBManager
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -156,6 +157,7 @@ def edit_post(id):
         
     return render_template('edit.html', post=post)
     
+    
 # 내 명함 삭제
 @app.route('/delete/<int:id>', methods=['GET'])
 def delete_post(id):
@@ -257,7 +259,72 @@ def board_write():
 def board_view_post(id):
     manager.update_views(id)
     post = manager.get_post(id)
-    return render_template('borad_view.html',post=post)
+    return render_template('board_view.html',post=post)
+
+
+@app.route('/board/edit/<int:id>', methods=['GET', 'POST'])
+def edit_board_post(id):
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        file = request.files.get('file')
+        
+        filename = None
+        if file and file.filename:
+
+            filename = secure_filename(file.filename)
+
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        success = manager.update_board_post(id, title, content, filename)
+        if success:
+            flash('게시글이 수정되었습니다.')
+            return redirect(url_for('view_board_post', id=id))
+        else:
+            flash('게시글 수정에 실패했습니다.')
+            return redirect(url_for('edit_board_post', id=id))
+    else:
+        post = manager.get_board_post(id)
+        if post:
+            return render_template('board_edit.html', post=post)
+        else:
+            flash('게시글을 찾을 수 없습니다.')
+            return redirect(url_for('board'))
+
+
+
+# 게시글 내용보기(수정)
+@app.route('/board/view/<int:id>')
+def view_board_post(id):
+    post = manager.get_board_post(id)
+    
+    if post:
+        return render_template('board_view.html', post=post)
+    else:
+        flash('게시글을 찾을 수 없습니다.')
+        return redirect(url_for('board'))
+
+
+
+@app.route('/board/delete/<int:id>')
+def delete_board_post(id):
+    if 'userid' not in session:
+        flash("로그인이 필요합니다.", "danger")
+        return redirect(url_for('login'))
+    
+    user_id = session['userid']  
+    post = manager.get_post(id)  
+
+    if post and post['user_id'] == user_id:
+        if manager.delete_board(id): 
+            flash('게시글이 삭제되었습니다.', 'success')
+        else:
+            flash('게시글 삭제에 실패했습니다.', 'danger')
+    else:
+        flash('삭제 권한이 없습니다.', 'danger')
+
+    return redirect(url_for('board_list'))
+
 
 
 if __name__ == '__main__':

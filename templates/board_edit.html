@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 수정</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/board_edit.css') }}">
+</head>
+<body>
+    <header>
+        <h1>게시판</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('board_list') }}">게시글 목록</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="board-write">
+            <h2>게시글 수정</h2>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">제목:</label>
+                    <input type="text" id="title" name="title" value="{{ post.title }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">내용:</label>
+                    <textarea id="content" name="content" required>{{ post.content }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="file">파일 현재 이미지:</label>
+                    {% if post.filename %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.filename) }}"
+                            alt="현재 이미지"
+                            class="image-preview">
+                        <p>현재 이미지: {{ post.filename }}</p>
+                    {% else %}
+                        <p>현재 이미지가 없습니다.</p>
+                    {% endif %}
+                    <br>
+                    <input type="file" id="file" name="file" accept="image/*">
+                    <p class="help-text">새 이미지를 업로드하려면 파일을 선택하세요. 선택하지 않으면 현재 이미지가 유지됩니다.</p>
+                </div>
+                
+                <div class="button-container">
+                    <button type="submit">수정</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 게시판. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/board_edit.js') }}"></script>
+</body>
+</html>

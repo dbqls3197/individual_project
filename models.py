@@ -250,7 +250,7 @@ class DBManager:
             self.disconnect()
 
 
-
+# 명함 전달
     def give_card(self, post_id, from_user_id, to_username):
         self.connect()
         try:
@@ -300,6 +300,8 @@ class DBManager:
         finally:
             self.disconnect()
 
+
+# 명함데이터를 데이터베이스에서 조회
     def get_user_cards(self, user_id):
         self.connect()
         try:
@@ -309,7 +311,7 @@ class DBManager:
         finally:
             self.disconnect()
 
-
+# 게시판에 게시글 저장
     def insert_board_post(self, user_id, title, content, filename=None):
         self.connect()
         try:
@@ -328,6 +330,7 @@ class DBManager:
         finally:
             self.disconnect()
 
+# 게시글 목록 페이징
     def get_board_posts(self, page=1, per_page=10):
         self.connect()
         try:
@@ -373,3 +376,74 @@ class DBManager:
             return False
         finally:
             self.disconnect()
+
+
+# 게시글 정보 조회
+    def get_board_post(self, post_id):
+        try:
+            self.connect()
+            sql = "SELECT * FROM board_posts WHERE id = %s"
+            value = (post_id,)
+            self.cursor.execute(sql, value)
+            post = self.cursor.fetchone()
+            if not post:
+                raise ValueError("게시글을 찾을 수 없습니다.")
+            return post
+        except mysql.connector.Error as error:
+            print(f"게시글 조회 중 오류 발생: {error}")
+            return None
+        finally:
+            self.disconnect()
+
+
+# 게시글 수정
+    def update_board_post(self, id, title, content, filename=None):
+        try:
+            self.connect()
+            if filename:
+                # 새 파일이 업로드된 경우
+                query = """
+                UPDATE board_posts
+                SET title = %s, content = %s, filename = %s, updated_at = NOW()
+                WHERE id = %s
+                """
+                values = (title, content, filename, id)
+            else:
+                # 파일이 변경되지 않은 경우, 기존 파일 유지
+                query = """
+                UPDATE board_posts
+                SET title = %s, content = %s, updated_at = NOW()
+                WHERE id = %s
+                """
+                values = (title, content, id)
+
+            self.cursor.execute(query, values)
+            self.connection.commit()
+            return True
+        except mysql.connector.Error as error:
+            print(f"게시글 수정 실패: {error}")
+            return False
+        finally:
+            self.disconnect()
+
+
+    
+
+
+# 게시글 삭제
+    def delete_board(self, id):
+        try:
+            self.connect()
+            sql = "DELETE FROM board_posts WHERE id = %s"
+            value = (id,)
+
+            self.cursor.execute(sql, value)
+            self.connection.commit()
+
+            return True
+        except mysql.connector.Error as error:
+            print(f"게시판 삭제 실패: {error}")
+            return False
+        finally:
+            self.disconnect()
+
