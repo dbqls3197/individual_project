@@ -103,3 +103,20 @@ footer {
         margin-top: 1rem;
     }
 }
+
+#flash-messages {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.flash-message {
+    margin-bottom: 5px;
+}

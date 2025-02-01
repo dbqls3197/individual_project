@@ -78,7 +78,37 @@
                 </div>
             </div>
             <div class="card-footer">
-                <div class="d-flex justify-content-between">
+                <h5>댓글</h5>
+                <ul id="commentList" class="list-group">
+                    {% for comment in comments %}
+                    <li class="list-group-item">
+                        <strong>{{ comment.username }}</strong> - {{ comment.content }}
+                        <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        {% if session['userid'] == comment.user_id %}
+                            <form action="{{ url_for('delete_comment') }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger float-end" 
+                                        onclick="return confirm('정말로 삭제하시겠습니까?');">
+                                    삭제
+                                </button>
+                            </form>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            
+                {% if session.get('userid') %}
+                    <form id="commentForm" action="{{ url_for('add_comment') }}" method="POST" class="mt-3">
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <textarea name="content" class="form-control" placeholder="댓글을 입력하세요" required></textarea>
+                        <button type="submit" class="btn btn-primary mt-2">댓글 작성</button>
+                    </form>
+                {% else %}
+                    <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
+                {% endif %}
+            
+                <div class="d-flex justify-content-between mt-3">
                     <div>
                         <a href="/board" class="btn btn-secondary">
                             <i class="fas fa-list"></i> 목록
@@ -90,8 +120,8 @@
                                 <i class="fas fa-edit"></i> 수정
                             </a>
                             <a href="{{ url_for('delete_board_post', id=post.id) }}"
-                            class="btn btn-danger"
-                            onclick="return confirm('정말로 삭제하시겠습니까?');">
+                                class="btn btn-danger"
+                                onclick="return confirm('정말로 삭제하시겠습니까?');">
                                 <i class="fas fa-trash"></i> 삭제
                             </a>
                         {% endif %}
