@@ -27,23 +27,17 @@ class DBManager:
             self.cursor = None
 
 
-# 데이터베이스 연결 종료
+# DB에 연결 종료
     def disconnect(self):
         if self.connection and self.connection.is_connected():
             self.cursor.close()
             self.connection.close()
 
 
-# 비밀번호 암호화
-    def hash_password(self, password):
-        hashed = generate_password_hash(password)
-        return hashed
-
 # 회원 가입
     def register_user(self, userid, username, name, password, email, phone, profile_picture):
         self.connect()
         try:
-            # 중복 체크
             checks = [
                 ('userid', userid, "아이디가 이미 존재합니다."),
                 ('username', username, "닉네임이 이미 존재합니다."),
@@ -71,6 +65,8 @@ class DBManager:
         finally:
             self.disconnect()
 
+
+# 아이디,비밀번호 확인
     def check_user_password(self, user_id, password):
         user = self.get_user_by_id(user_id)
         if user and check_password_hash(user['password'], password):
@@ -78,7 +74,7 @@ class DBManager:
         return False
 
 
-
+# 필드 중복 체크
     def is_field_exists(self, field, value):
         self.connect()  # 연결 상태 확인 및 연결
         try:
@@ -88,6 +84,8 @@ class DBManager:
         except mysql.connector.Error as e:
             return False
         
+
+# 사용자 정보 조회
     def get_user_by_id(self, user_id):
         self.connect()
         try:
@@ -97,22 +95,20 @@ class DBManager:
         finally:
             self.disconnect()
 
+
+# 회원 탈퇴
     def delete_user(self, user_id):
         self.connect()
         try:
-            # 게시글 먼저 삭제
             delete_posts_query = "DELETE FROM board_posts WHERE user_id = %s"
             self.cursor.execute(delete_posts_query, (user_id,))
 
-            # 명함 삭제
             delete_received_posts_query = "DELETE FROM business_cards WHERE user_id = %s"
             self.cursor.execute(delete_received_posts_query, (user_id,))
 
-            # 마지막으로 사용자 정보 삭제
             delete_user_query = "DELETE FROM users WHERE userid = %s"
             self.cursor.execute(delete_user_query, (user_id,))
 
-            # 커밋
             self.connection.commit()
             return True
         except Exception as e:
@@ -122,12 +118,10 @@ class DBManager:
             self.disconnect()
 
 
-
 # 로그인
     def login_user(self, userid, password):
         self.connect()
         try:
-            # 사용자 정보 조회
             query = "SELECT * FROM users WHERE userid = %s"
             self.cursor.execute(query, (userid,))
             user = self.cursor.fetchone()
@@ -143,6 +137,7 @@ class DBManager:
             return False, f"로그인 중 오류 발생: {str(e)}"
         finally:
             self.disconnect()
+
 
 # 명함 추가
     def insert_post(self, user_id, name, company_name, department, position, phone, email, filename):
@@ -206,6 +201,7 @@ class DBManager:
             self.disconnect()
 
 
+# 명함 조회
     def get_post_by_id(self, post_id, user_id):
         self.connect()
         try:
@@ -220,6 +216,8 @@ class DBManager:
         finally:
             self.disconnect()
 
+
+# 명함 전체 조회
     def get_user_posts(self, user_id):
         self.connect()
         try:
@@ -235,7 +233,7 @@ class DBManager:
             self.disconnect()
 
 
-# 내명함 삭제
+# 내 명함 삭제
     def delete_post(self, post_id, user_id):
         self.connect()
         try:
@@ -250,6 +248,7 @@ class DBManager:
             return False
         finally:
             self.disconnect()
+
 
 # 받은 명함 전체보기
     def get_received_posts(self, user_id):
@@ -268,6 +267,8 @@ class DBManager:
         finally:
             self.disconnect()
 
+
+# 받은 명함 삭제
     def delete_received_post(self, id, user_id):
         self.connect()
         try:
@@ -379,7 +380,6 @@ class DBManager:
             self.cursor.execute(query, (per_page, offset))
             posts = self.cursor.fetchall()
 
-            # 전체 게시글 개수 조회
             count_query = "SELECT COUNT(*) as total FROM board_posts"
             self.cursor.execute(count_query)
             total_posts_result = self.cursor.fetchone()
@@ -423,6 +423,7 @@ class DBManager:
         finally:
             self.disconnect()
 
+
 # 댓글 추가
     def add_comment(self, post_id, user_id, content):
         try:
@@ -435,6 +436,7 @@ class DBManager:
             raise error
         finally:
             self.disconnect()
+
 
 # 댓글 삭제
     def delete_comment(self, comment_id, user_id):
@@ -454,7 +456,6 @@ class DBManager:
             self.disconnect()  # 데이터베이스 연결 종료 추가
 
 
-
 # 조회수증가
     def update_views(self, id):
         try:
@@ -471,7 +472,7 @@ class DBManager:
             self.disconnect()
 
 
-# 게시글 정보 조회
+# 게시글 조회
     def get_board_post(self, post_id):
         try:
             self.connect()
