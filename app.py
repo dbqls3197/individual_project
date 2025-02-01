@@ -148,7 +148,7 @@ def add_post():
     return render_template('add.html')
 
 
-# 내 명함 내용보기
+# 내 명함 보기
 @app.route('/view')
 def view_posts():
     user_id = session.get('userid')  
