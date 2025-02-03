@@ -25,7 +25,7 @@ def index():
     if 'userid' not in session:
         return redirect('/login')
     user_id = session.get('userid')
-    posts = manager.get_user_posts(user_id)  # 사용자의 모든 명함 가져오기
+    posts = manager.get_user_posts(user_id) 
     return render_template('index.html', posts=posts)
 
 

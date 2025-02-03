@@ -49,7 +49,6 @@ class DBManager:
                 if self.is_field_exists(field, value):
                     return False, error_message
 
-            # 비밀번호 해시화
             hashed_password = generate_password_hash(password)
 
             query = """
@@ -76,7 +75,7 @@ class DBManager:
 
 # 필드 중복 체크
     def is_field_exists(self, field, value):
-        self.connect()  # 연결 상태 확인 및 연결
+        self.connect()
         try:
             query = f"SELECT 1 FROM users WHERE {field} = %s LIMIT 1"
             self.cursor.execute(query, (value,))
@@ -272,7 +271,6 @@ class DBManager:
     def delete_received_post(self, id, user_id):
         self.connect()
         try:
-            # 받은 명함 테이블에서 삭제
             query = "DELETE FROM business_cards WHERE id = %s AND user_id = %s"
             self.cursor.execute(query, (id, user_id))
             
@@ -301,7 +299,6 @@ class DBManager:
             
             to_user_id = recipient['userid']  
             
-            # 명함 정보 조회
             query = """
             SELECT * FROM my_business_cards 
             WHERE user_id = %s AND id = %s
@@ -312,7 +309,6 @@ class DBManager:
             if not card:
                 return False, "명함을 찾을 수 없습니다. 사용자 정보를 확인해 주세요."
             
-            # 명함을 받은 사람의 보관함에 저장
             query = """
             INSERT INTO business_cards 
             (user_id, name, company_name, department, position, phone,
@@ -369,7 +365,6 @@ class DBManager:
         try:
             offset = (page - 1) * per_page
 
-            # 게시글 목록 조회
             query = """
             SELECT bp.*, u.username 
             FROM board_posts bp 
@@ -396,7 +391,6 @@ class DBManager:
         try:
             self.connect()
             
-            # 게시글 정보 가져오기
             sql_post = "SELECT * FROM board_posts WHERE id = %s"
             self.cursor.execute(sql_post, (id,))
             post = self.cursor.fetchone()
@@ -404,7 +398,6 @@ class DBManager:
             if not post:
                 return None, []
 
-            # 댓글 목록 가져오기
             sql_comments = """
                 SELECT comments.id, comments.user_id, users.username, comments.content, comments.created_at
                 FROM comments
@@ -441,10 +434,10 @@ class DBManager:
 # 댓글 삭제
     def delete_comment(self, comment_id, user_id):
         try:
-            self.connect()  # 데이터베이스 연결 추가
+            self.connect()  
             query = "DELETE FROM comments WHERE id = %s AND user_id = %s"
             self.cursor.execute(query, (comment_id, user_id))
-            self.connection.commit()  # self.conn을 self.connection으로 수정
+            self.connection.commit()  
 
             if self.cursor.rowcount > 0:
                 print("댓글 삭제 성공!")
@@ -453,7 +446,7 @@ class DBManager:
         except Exception as e:
             print("댓글 삭제 오류:", str(e))
         finally:
-            self.disconnect()  # 데이터베이스 연결 종료 추가
+            self.disconnect()  
 
 
 # 조회수증가

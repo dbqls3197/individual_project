@@ -1,0 +1,100 @@
+/* 전체 레이아웃 */
+.withdrawal-container {
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    color: #333 !important;
+}
+
+.withdrawal-container:hover {
+    transform: translateY(-5px);
+}
+
+/* 제목 및 텍스트 */
+.withdrawal-container h2 {
+    color: #4a90e2;
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 700;
+    font-size: 28px;
+}
+
+.withdrawal-container p {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 35px;
+    line-height: 1.7;
+    font-size: 16px;
+}
+
+/* 입력 필드 */
+.form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #c3cfe2;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+/* 버튼 스타일 */
+.btn-danger {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    background-color: #ff4d4d;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.btn-danger:hover {
+    background-color: #cc0000;
+}
+
+.btn-secondary {
+    width: 100%;
+    margin-top: 10px;
+    padding: 16px;
+    border: 1px solid #c3cfe2;
+    border-radius: 8px;
+    background-color: white;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.btn-secondary:hover {
+    background-color: #f5f7fa;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+    .withdrawal-container {
+        width: 90%;
+        margin: 30px auto;
+        padding: 30px;
+    }
+}

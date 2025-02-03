@@ -2,6 +2,11 @@
 
 {% block title %}회원 탈퇴{% endblock %}
 
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/delete_account.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <h2>회원 탈퇴</h2>
@@ -17,4 +22,8 @@
     
     <a href="/" class="btn btn-secondary mt-3">취소</a>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/delete_account.js') }}"></script>
 {% endblock %}
