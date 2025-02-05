@@ -128,6 +128,7 @@ def add_post():
         user_id = session['userid']
         name = request.form['name']
         company_name = request.form['company_name']
+        address = request.form['address']
         department = request.form['department']
         position = request.form['position']
         phone = request.form['phone']
@@ -138,7 +139,7 @@ def add_post():
         if filename:
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        if manager.insert_post(user_id, name, company_name, department, position, phone, email, filename):
+        if manager.insert_post(user_id, name, company_name, address, department, position, phone, email, filename):
             flash('명함이 성공적으로 추가되었습니다!', 'success')  
             return redirect('/') 
         else:
@@ -173,6 +174,7 @@ def edit_post(id):
     if request.method == "POST":
         name = request.form['name']
         company_name = request.form['company_name']
+        address = request.form['address']
         department = request.form['department']
         position = request.form['position']
         phone = request.form['phone']
@@ -183,7 +185,7 @@ def edit_post(id):
         if filename:
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         
-        if manager.update_post(id, name, company_name, department, position, phone, email, filename):
+        if manager.update_post(id, name, company_name, address, department, position, phone, email, filename):
             return redirect('/')
         return '명함 수정 실패', 400
         

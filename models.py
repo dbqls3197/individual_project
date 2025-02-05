@@ -65,14 +65,6 @@ class DBManager:
             self.disconnect()
 
 
-# 아이디,비밀번호 확인
-    def check_user_password(self, user_id, password):
-        user = self.get_user_by_id(user_id)
-        if user and check_password_hash(user['password'], password):
-            return True
-        return False
-
-
 # 필드 중복 체크
     def is_field_exists(self, field, value):
         self.connect()
@@ -139,14 +131,14 @@ class DBManager:
 
 
 # 명함 추가
-    def insert_post(self, user_id, name, company_name, department, position, phone, email, filename):
+    def insert_post(self, user_id, name, company_name, address, department, position, phone, email, filename):
         self.connect()
         try:
             query = """
-            INSERT INTO my_business_cards (user_id, name, company_name, department, position, phone, email, filename)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO my_business_cards (user_id, name, company_name, address, department, position, phone, email, filename)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            values = (user_id, name, company_name, department, position, phone, email, filename)
+            values = (user_id, name, company_name, address, department, position, phone, email, filename)
             self.cursor.execute(query, values)
             self.connection.commit()
             return True
@@ -174,7 +166,7 @@ class DBManager:
 
 
 # 내 명함 수정
-    def update_post(self, post_id, name, company_name, department, position, phone, email, filename):
+    def update_post(self, post_id, name, company_name, address, department, position, phone, email, filename):
         self.connect()
         try:
             self.cursor.execute("SELECT filename FROM my_business_cards WHERE id = %s", (post_id,))
@@ -185,11 +177,11 @@ class DBManager:
 
             query = """
             UPDATE my_business_cards
-            SET name = %s, company_name = %s, department = %s, position = %s,
+            SET name = %s, company_name = %s, address = %s, department = %s, position = %s,
             phone = %s, email = %s, filename = %s
             WHERE id = %s
             """
-            values = (name, company_name, department, position, phone, email, filename, post_id)
+            values = (name, company_name, department, address, position, phone, email, filename, post_id)
             self.cursor.execute(query, values)
             self.connection.commit()
             return True
@@ -311,13 +303,13 @@ class DBManager:
             
             query = """
             INSERT INTO business_cards 
-            (user_id, name, company_name, department, position, phone,
+            (user_id, name, company_name, address, department, position, phone,
             email, filename, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
             """
             values = (to_user_id, card['name'], card['company_name'],
-                    card['department'], card['position'], card['phone'],
-                    card['email'], card['filename'])
+                    card['address'], card['department'], card['position'], 
+                    card['phone'], card['email'], card['filename'])
             
             self.cursor.execute(query, values)
             self.connection.commit()
