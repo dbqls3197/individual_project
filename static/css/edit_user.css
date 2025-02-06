@@ -1,0 +1,86 @@
+.edit-user-form {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.edit-user-form h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 35px;
+    font-weight: 300;
+    letter-spacing: -0.5px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    color: #34495e;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    background-color: #f4f6f7;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background-color: #e8f4f8;
+    box-shadow: 0 0 0 2px #3498db;
+}
+
+.profile-picture-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ecf0f1;
+    margin: 15px 0;
+    transition: transform 0.3s ease;
+}
+
+.profile-picture-preview:hover {
+    transform: scale(1.05);
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+}

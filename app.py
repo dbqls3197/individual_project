@@ -63,6 +63,51 @@ def register():
     return render_template('register.html')
 
 
+# 사용자 정보 확인
+@app.route('/profile')
+def profile():
+    if 'userid' not in session:
+        return redirect('/login')
+    user_id = session['userid']
+    user = manager.get_user_by_id(user_id)
+    return render_template('profile.html', user=user)
+
+
+# 회원수정
+@app.route('/profile/edit', methods=['GET', 'POST'])
+def edit_user():
+    if 'userid' not in session:
+        return redirect('/login')
+
+    user_id = session.get('userid')
+    user = manager.get_user_by_id(user_id)  
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        username = request.form.get('username')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        profile_picture = request.files.get('profile_picture')
+
+        if profile_picture and profile_picture.filename != '':
+            filename = secure_filename(profile_picture.filename)
+            profile_picture_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            profile_picture.save(profile_picture_path)
+        else:
+            filename = user['profile_picture']
+
+        success, message = manager.update_user(user_id, username, name, email, phone, filename)
+
+        if success:
+            flash(message, 'success')
+            return redirect(url_for('profile'))
+        else:
+            flash(message, 'error')
+            return render_template('edit_user.html', user=user)
+
+    return render_template('edit_user.html', user=user)
+
+
 # 회원 탈퇴
 @app.route('/delete_account', methods=["GET", "POST"])
 def delete_account():

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}내 프로필{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-wrapper">
+        <div class="profile-header">
+            {% if user.profile_picture %}
+            <div class="profile-image">
+                <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="Profile Picture">
+            </div>
+            {% endif %}
+            <h2>{{ user.name }}</h2>
+        </div>
+        
+        <div class="profile-details">
+            <div class="detail-item">
+                <span class="label">아이디</span>
+                <span class="value">{{ user.userid }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">닉네임</span>
+                <span class="value">{{ user.username }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">이메일</span>
+                <span class="value">{{ user.email }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">전화번호</span>
+                <span class="value">{{ user.phone }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">가입일</span>
+                <span class="value">{{ user.created_at.strftime('%Y년 %m월 %d일') }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="{{ url_for('edit_user') }}" class="btn-edit">정보 수정</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

@@ -65,6 +65,64 @@ class DBManager:
             self.disconnect()
 
 
+# 사용자 정보 확인
+    def get_user_by_id(self, user_id):
+        self.connect()
+        query = """
+        SELECT id, userid, username, name, email, profile_picture, phone, created_at
+        FROM users
+        WHERE id = %s
+        """
+        self.cursor.execute(query, (user_id,))
+        result = self.cursor.fetchone()
+        return result
+    
+
+# 사용자 정보 수정
+    def update_user(self, user_id, username, name, email, phone, profile_picture):
+        try:
+            self.connect()
+
+            check_query = """
+            SELECT username, email, phone FROM users 
+            WHERE (username = %s OR email = %s OR phone = %s) AND userid != %s
+            """
+            self.cursor.execute(check_query, (username, email, phone, user_id))
+            duplicates = self.cursor.fetchall()
+
+            if duplicates:
+                for duplicate in duplicates:
+                    if duplicate['username'] == username:
+                        return False, "이미 사용 중인 닉네임입니다."
+                    if duplicate['email'] == email:
+                        return False, "이미 사용 중인 이메일입니다."
+                    if duplicate['phone'] == phone:
+                        return False, "이미 사용 중인 전화번호입니다."
+
+            if not profile_picture:
+                profile_picture = None
+
+            query = """
+            UPDATE users 
+            SET username = %s, name = %s, email = %s, phone = %s, profile_picture = %s
+            WHERE userid = %s
+            """
+            values = (username, name, email, phone, profile_picture, user_id) 
+            self.cursor.execute(query, values)
+            self.connection.commit()
+
+            if self.cursor.rowcount == 0:
+                return False, "업데이트할 정보가 없습니다."
+            return True, "사용자 정보가 성공적으로 업데이트되었습니다."
+        except mysql.connector.Error as error:
+            return False, f"DB 업데이트 실패: {error}"
+        finally:
+            if self.cursor:
+                self.cursor.close()
+            if self.connection:
+                self.connection.close()
+
+
 # 필드 중복 체크
     def is_field_exists(self, field, value):
         self.connect()
