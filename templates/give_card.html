@@ -4,36 +4,122 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/give_card.css') }}">
+<style>
+    .transfer-methods {
+        margin: 20px 0;
+    }
+    .transfer-method {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        display: none;
+    }
+    .method-selector {
+        margin-bottom: 20px;
+    }
+    .active {
+        display: block;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <h1>명함 전달하기</h1>
 <section>
-    <form id="giveCardForm" action="{{ url_for('give_card') }}" method="POST">
-        <div class="form-group">
-            <label for="card_id">전달할 명함 선택</label>
-            <select name="card_id" id="card_id" required>
-                {% for card in cards %}
-                    <option value="{{ card.id }}">{{ card.name }} - {{ card.company_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="to_username">받는 사람 닉네임</label>
-            <input type="text" class="form-control" id="to_username" name="to_username" required>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">명함 주기</button>
-    </form>
+    <div class="form-group">
+        <label for="card_id">전달할 명함 선택</label>
+        <select name="card_id" id="card_id" required>
+            <option value="">명함을 선택하세요</option>
+            {% for card in cards %}
+                <option value="{{ card.id }}">{{ card.name }} - {{ card.company_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-    <div class="qr-section">
+    <div class="method-selector">
+        <label>전달 방식 선택:</label>
+        <select id="transferMethod">
+            <option value="">전달 방식을 선택하세요</option>
+            <option value="username">닉네임으로 전달</option>
+            <option value="qr">QR코드로 전달</option>
+        </select>
+    </div>
+
+    <!-- 닉네임으로 전달 -->
+    <div id="usernameTransfer" class="transfer-method">
+        <form id="giveCardForm" action="{{ url_for('give_card') }}" method="POST">
+            <input type="hidden" name="card_id" id="usernameCardId">
+            <div class="form-group">
+                <label for="to_username">받는 사람 닉네임</label>
+                <input type="text" class="form-control" id="to_username" name="to_username" required>
+            </div>
+            <button type="submit" class="btn btn-primary">명함 전달하기</button>
+        </form>
+    </div>
+
+    <!-- QR코드로 전달 -->
+    <div id="qrTransfer" class="transfer-method">
         <h3>QR코드로 전달하기</h3>
-        <p>준비중입니다...</p>
+        <div id="qrCode">
+            <img src="" alt="QR Code" class="img-fluid" style="display: none;">
+            <p class="mt-2">QR 코드를 스캔하여 명함 정보를 저장하세요</p>
+        </div>
     </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/give_card.js') }}"></script>
+<script>
+const cardSelect = document.getElementById('card_id');
+const methodSelect = document.getElementById('transferMethod');
+const usernameTransfer = document.getElementById('usernameTransfer');
+const qrTransfer = document.getElementById('qrTransfer');
+const usernameCardId = document.getElementById('usernameCardId');
+const qrImage = document.querySelector('#qrCode img');
+
+// 명함 선택 시
+cardSelect.addEventListener('change', function() {
+    if (this.value) {
+        methodSelect.disabled = false;
+        usernameCardId.value = this.value;
+        
+        if (methodSelect.value === 'qr') {
+            updateQRCode(this.value);
+        }
+    } else {
+        methodSelect.disabled = true;
+        hideAllMethods();
+    }
+});
+
+// 전달 방식 선택 시
+methodSelect.addEventListener('change', function() {
+    hideAllMethods();
+    
+    if (this.value === 'username') {
+        usernameTransfer.classList.add('active');
+    } else if (this.value === 'qr') {
+        qrTransfer.classList.add('active');
+        updateQRCode(cardSelect.value);
+    }
+});
+
+function hideAllMethods() {
+    usernameTransfer.classList.remove('active');
+    qrTransfer.classList.remove('active');
+}
+
+function updateQRCode(cardId) {
+    fetch(`/generate_qr/${cardId}`)
+        .then(response => response.json())
+        .then(data => {
+            qrImage.src = `data:image/png;base64,${data.qr_code}`;
+            qrImage.style.display = 'block';
+        });
+}
+
+// 초기 상태 설정
+methodSelect.disabled = !cardSelect.value;
+</script>
 {% endblock %}

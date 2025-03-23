@@ -2,6 +2,9 @@ import mysql.connector
 from mysql.connector import Error
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
+import qrcode
+from io import BytesIO
+import base64
 
 
 class DBManager:
@@ -264,6 +267,38 @@ class DBManager:
             return None
         finally:
             self.disconnect()
+
+    def generate_qr(self, post):
+        try:
+            # vCard 형식으로 명함 정보 구성
+            vcard = f"""BEGIN:VCARD
+    VERSION:3.0
+    FN:{post['name']}
+    ORG:{post['company_name']}
+    TITLE:{post['position']}
+    ADR;TYPE=WORK:{post['address']}
+    TEL;TYPE=WORK:{post['phone']}
+    EMAIL:{post['email']}
+    NOTE:부서: {post['department']}
+    END:VCARD"""
+            
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(vcard)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffered = BytesIO()
+            img.save(buffered)
+            img_str = base64.b64encode(buffered.getvalue()).decode()
+            return img_str
+        except Exception as e:
+            print(f"QR 코드 생성 오류: {str(e)}")
+            return None
 
 
 # 명함 전체 조회

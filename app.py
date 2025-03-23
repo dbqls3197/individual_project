@@ -201,7 +201,7 @@ def view_posts():
     posts = manager.get_all_posts_user(user_id) 
     if not posts:
         print("명함이 없습니다.")  
-    return render_template('view.html', posts=posts)
+    return render_template('view.html', posts=posts, generate_qr=manager.generate_qr)
 
 
 # 명함 수정
@@ -273,6 +273,33 @@ def delete_received_post(id):
     return '받은 명함 삭제 실패', 400
 
 
+# QR 코드 생성  
+@app.route('/generate_qr/<int:card_id>')
+def generate_qr_code(card_id):
+    if 'userid' not in session:
+        return jsonify({'error': '로그인이 필요합니다'}), 401
+    
+    user_id = session.get('userid')
+    card = manager.get_post_by_id(card_id, user_id)
+    
+    if card is None:
+        return jsonify({'error': '명함을 찾을 수 없습니다'}), 404
+    
+    # QR 코드에 모든 명함 정보를 포함
+    card_info = {
+        'name': card['name'],
+        'company_name': card['company_name'],
+        'department': card['department'],
+        'position': card['position'],
+        'phone': card['phone'],
+        'email': card['email'],
+        'address': card['address']
+    }
+    
+    qr_code = manager.generate_qr(card_info)  # card_info 전체를 전달
+    return jsonify({'qr_code': qr_code})
+
+
 # 명함 보내기
 @app.route('/give_card', methods=['GET', 'POST'])
 def give_card():
@@ -294,7 +321,7 @@ def give_card():
             flash(message, 'error')
         return redirect(url_for('give_card'))
 
-    return render_template('give_card.html', cards=user_cards)
+    return render_template('give_card.html', cards=user_cards, generate_qr=manager.generate_qr)
 
 
 # 게시판 목록
@@ -312,6 +339,31 @@ def board_list():
 
     return render_template('board.html', posts=posts, page=page, total_pages=total_pages)
 
+
+@app.route('/view/<int:id>')
+def view_card(id):
+    if 'userid' not in session:
+        return redirect('/login')
+    
+    user_id = session.get('userid')
+    post = manager.get_post_by_id(id, user_id)
+    
+    if post is None:
+        return "명함을 찾을 수 없습니다.", 404
+    
+    # QR 코드에 담을 명함 정보
+    card_info = f"""
+    이름: {post['name']}
+    회사: {post['company_name']}
+    부서: {post['department']}
+    직책: {post['position']}
+    전화번호: {post['phone']}
+    이메일: {post['email']}
+    주소: {post['address']}
+    """
+    
+    qr_code = manager.generate_qr(post) 
+    return render_template('view_card.html', post=post, qr_code=qr_code)
 
 # 게시글 작성
 @app.route('/board/write', methods=['GET', 'POST'])
