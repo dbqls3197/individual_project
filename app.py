@@ -340,30 +340,6 @@ def board_list():
     return render_template('board.html', posts=posts, page=page, total_pages=total_pages)
 
 
-@app.route('/view/<int:id>')
-def view_card(id):
-    if 'userid' not in session:
-        return redirect('/login')
-    
-    user_id = session.get('userid')
-    post = manager.get_post_by_id(id, user_id)
-    
-    if post is None:
-        return "명함을 찾을 수 없습니다.", 404
-    
-    # QR 코드에 담을 명함 정보
-    card_info = f"""
-    이름: {post['name']}
-    회사: {post['company_name']}
-    부서: {post['department']}
-    직책: {post['position']}
-    전화번호: {post['phone']}
-    이메일: {post['email']}
-    주소: {post['address']}
-    """
-    
-    qr_code = manager.generate_qr(post) 
-    return render_template('view_card.html', post=post, qr_code=qr_code)
 
 # 게시글 작성
 @app.route('/board/write', methods=['GET', 'POST'])

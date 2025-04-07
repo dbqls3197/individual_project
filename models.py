@@ -19,7 +19,7 @@ class DBManager:
             return
         try:
             self.connection = mysql.connector.connect(
-                host='10.0.66.16',
+                host='10.0.66.10',
                 user='dbqls',
                 password='1234',
                 database='business_cards'

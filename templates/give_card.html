@@ -21,6 +21,17 @@
     .active {
         display: block;
     }
+    .coming-soon {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+        color: #6c757d;
+    }
+    .coming-soon i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -58,12 +69,13 @@
         </form>
     </div>
 
-    <!-- QR코드로 전달 -->
+    <!-- QR코드로 전달 (준비중) -->
     <div id="qrTransfer" class="transfer-method">
         <h3>QR코드로 전달하기</h3>
-        <div id="qrCode">
-            <img src="" alt="QR Code" class="img-fluid" style="display: none;">
-            <p class="mt-2">QR 코드를 스캔하여 명함 정보를 저장하세요</p>
+        <div class="coming-soon">
+            <i class="fas fa-tools"></i>
+            <h4>준비중입니다</h4>
+            <p>QR코드 전달 기능은 현재 개발 중입니다. 곧 이용하실 수 있습니다.</p>
         </div>
     </div>
 </section>
@@ -76,17 +88,12 @@ const methodSelect = document.getElementById('transferMethod');
 const usernameTransfer = document.getElementById('usernameTransfer');
 const qrTransfer = document.getElementById('qrTransfer');
 const usernameCardId = document.getElementById('usernameCardId');
-const qrImage = document.querySelector('#qrCode img');
 
 // 명함 선택 시
 cardSelect.addEventListener('change', function() {
     if (this.value) {
         methodSelect.disabled = false;
         usernameCardId.value = this.value;
-        
-        if (methodSelect.value === 'qr') {
-            updateQRCode(this.value);
-        }
     } else {
         methodSelect.disabled = true;
         hideAllMethods();
@@ -101,22 +108,12 @@ methodSelect.addEventListener('change', function() {
         usernameTransfer.classList.add('active');
     } else if (this.value === 'qr') {
         qrTransfer.classList.add('active');
-        updateQRCode(cardSelect.value);
     }
 });
 
 function hideAllMethods() {
     usernameTransfer.classList.remove('active');
     qrTransfer.classList.remove('active');
-}
-
-function updateQRCode(cardId) {
-    fetch(`/generate_qr/${cardId}`)
-        .then(response => response.json())
-        .then(data => {
-            qrImage.src = `data:image/png;base64,${data.qr_code}`;
-            qrImage.style.display = 'block';
-        });
 }
 
 // 초기 상태 설정
